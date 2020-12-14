@@ -1,2 +1,2 @@
 # Advent of Code 2020
-Hopefully this will help me learn Go (not the prettiest code).
+Hopefully this will help me learn Go.
