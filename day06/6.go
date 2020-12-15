@@ -33,7 +33,7 @@ func (g *Group) FindCount() int {
 	return len(qsAnswered)
 }
 
-// FindEveryoneCount : "identify the questions to which everyone answered "yes"!"
+// FindEveryoneCount : Identify the questions to which everyone answered "yes"
 func (g *Group) FindEveryoneCount() int {
 	m := make(map[byte]int)
 	for _, ans := range g.answers {
@@ -76,16 +76,17 @@ func main() {
 			for {
 				ans := parseLine(line)
 				g.AddAnswer(ans)
+
 				scanner.Scan()
 				line = scanner.Text()
-				if len(line) == 0 {
+				if line == "" {
 					break
 				}
 			}
 			groups = append(groups, &g)
-			fmt.Println(g)
-			fmt.Println(g.FindEveryoneCount())
-			fmt.Println("\n")
+			// fmt.Println(g)
+			// fmt.Println(g.FindEveryoneCount())
+			// fmt.Println("\n")
 		}
 	}
 
