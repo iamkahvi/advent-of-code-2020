@@ -33,6 +33,25 @@ func (g *Group) FindCount() int {
 	return len(qsAnswered)
 }
 
+// FindEveryoneCount : "identify the questions to which everyone answered "yes"!"
+func (g *Group) FindEveryoneCount() int {
+	m := make(map[byte]int)
+	for _, ans := range g.answers {
+		for k := range ans {
+			m[k]++
+		}
+	}
+
+	count := 0
+	for _, v := range m {
+		if v == len(g.answers) {
+			count++
+		}
+	}
+
+	return count
+}
+
 func main() {
 	fileString := os.Args[1]
 	file, err := os.Open(fileString)
@@ -65,14 +84,14 @@ func main() {
 			}
 			groups = append(groups, &g)
 			fmt.Println(g)
-			fmt.Println(g.FindCount())
+			fmt.Println(g.FindEveryoneCount())
 			fmt.Println("\n")
 		}
 	}
 
 	totalCount := 0
 	for _, g := range groups {
-		totalCount += g.FindCount()
+		totalCount += g.FindEveryoneCount()
 	}
 	fmt.Println(totalCount)
 
