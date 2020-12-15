@@ -21,6 +21,18 @@ func (g *Group) AddAnswer(a Answer) []Answer {
 	return g.answers
 }
 
+// FindCount : Calculate a group's answer "count"
+func (g *Group) FindCount() int {
+	qsAnswered := make(map[byte]bool)
+	for _, ans := range g.answers {
+		for k := range ans {
+			qsAnswered[k] = true
+		}
+	}
+
+	return len(qsAnswered)
+}
+
 func main() {
 	fileString := os.Args[1]
 	file, err := os.Open(fileString)
@@ -39,24 +51,30 @@ func main() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		m := make([]Answer, 0)
-		g := Group{m}
+		if line != "" {
+			g := Group{make([]Answer, 0)}
 
-		for scanner.Scan() {
-			if line == "" {
-				break
+			for {
+				ans := parseLine(line)
+				g.AddAnswer(ans)
+				scanner.Scan()
+				line = scanner.Text()
+				if len(line) == 0 {
+					break
+				}
 			}
-			ans := parseLine(line)
-			fmt.Println(line)
-			g.AddAnswer(ans)
-			line = scanner.Text()
+			groups = append(groups, &g)
+			fmt.Println(g)
+			fmt.Println(g.FindCount())
+			fmt.Println("\n")
 		}
-
-		groups = append(groups, &g)
-		fmt.Println(g)
 	}
 
-	fmt.Println(len(groups))
+	totalCount := 0
+	for _, g := range groups {
+		totalCount += g.FindCount()
+	}
+	fmt.Println(totalCount)
 
 }
 
