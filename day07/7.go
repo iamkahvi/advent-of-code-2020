@@ -33,6 +33,21 @@ func (b *Bag) CanHoldBag(color string, bags map[string]*Bag) bool {
 	return false
 }
 
+// NestedBags : Number of bags in contents
+func (b *Bag) NestedBags(bags map[string]*Bag) int {
+	if len(b.contents) == 0 {
+		return 0
+	}
+
+	count := 0
+	for c, num := range b.contents {
+		if b, ok := bags[c]; ok {
+			count += num + num*b.NestedBags(bags)
+		}
+	}
+	return count
+}
+
 func main() {
 	fileString := os.Args[1]
 	file, err := os.Open(fileString)
@@ -60,14 +75,7 @@ func main() {
 
 	fmt.Println("done parsing")
 
-	count := 0
-	for _, bag := range bags {
-		if bag.CanHoldBag("shiny gold", bags) {
-			count++
-		}
-	}
-
-	fmt.Println("count:", count)
+	fmt.Println("count:", bags["shiny gold"].NestedBags(bags))
 }
 
 // Need to parse:
