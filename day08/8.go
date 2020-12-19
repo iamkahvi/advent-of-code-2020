@@ -8,12 +8,18 @@ import (
 	"strconv"
 )
 
-// Operations in the input file
+// Type of operations in the input file
 const (
 	ACC = iota
 	JMP = iota
 	NOP = iota
 )
+
+// Op : An operation
+type Op struct {
+	command int
+	num     int
+}
 
 func main() {
 	fileString := os.Args[1]
@@ -29,31 +35,82 @@ func main() {
 		log.Fatal(err)
 	}
 
-	lines := make([]string, 0)
+	operations := make([]Op, 0)
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		lines = append(lines, line)
+		o, _ := parseLine(line)
+
+		operations = append(operations, o)
 	}
 
 	visited := make(map[int]bool)
-	count, i := 0, 0
+	i, count := 0, 0
+
+	// The program is supposed to terminate by attempting to execute an instruction
+	// immediately after the last instruction in the file
+	// i == len(operations)
 
 	for {
-		if _, ok := visited[i]; ok {
+		if i == len(operations) {
 			break
-		} else {
-			visited[i] = true
 		}
 
-		command, num := parseLine(lines[i])
+		if _, ok := visited[i]; ok {
+			fmt.Println("Something went wrong", i)
+			break
+		}
+		visited[i] = true
 
-		switch command {
+		op := operations[i]
+
+		switch op.command {
 		case ACC:
-			count += num
+			count += op.num
 			i++
 		case JMP:
-			i += num
+			if ok, count := terminates(i+1, &operations, visited, count); ok {
+				fmt.Println("Changed operation at line: ", i, count)
+				return
+			}
+			fmt.Println("No change at line: ", i, count)
+
+			i += op.num
+		case NOP:
+			if ok, count := terminates(i+op.num, &operations, visited, count); ok {
+				fmt.Println("Changed operation at line: ", i, count)
+				return
+			}
+			fmt.Println("No change at line: ", i, count)
+			i++
+		default:
+			fmt.Println("Command not recognized")
+			return
+		}
+	}
+
+	fmt.Println(count)
+}
+
+func terminates(i int, operations *[]Op, visited map[int]bool, count int) (bool, int) {
+	for {
+		if i == len(*operations) {
+			return true, count
+		}
+
+		if _, ok := visited[i]; ok {
+			return false, count
+		}
+		visited[i] = true
+
+		op := (*operations)[i]
+
+		switch op.command {
+		case ACC:
+			count += op.num
+			i++
+		case JMP:
+			i += op.num
 		case NOP:
 			i++
 		default:
@@ -61,12 +118,10 @@ func main() {
 			break
 		}
 	}
-
-	fmt.Println(count)
 }
 
-func parseLine(s string) (command int, num int) {
-	num, _ = strconv.Atoi(s[5:])
+func parseLine(s string) (Op, bool) {
+	num, _ := strconv.Atoi(s[5:])
 
 	if s[4] == '-' {
 		num *= -1
@@ -74,12 +129,12 @@ func parseLine(s string) (command int, num int) {
 
 	switch s[:3] {
 	case "acc":
-		return ACC, num
+		return Op{ACC, num}, true
 	case "nop":
-		return NOP, num
+		return Op{NOP, num}, true
 	case "jmp":
-		return JMP, num
+		return Op{JMP, num}, true
 	default:
-		return 0, 0
+		return Op{0, 0}, false
 	}
 }
