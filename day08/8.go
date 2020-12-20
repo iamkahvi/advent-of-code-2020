@@ -56,32 +56,35 @@ func main() {
 			break
 		}
 
+		op := operations[i]
+		// fmt.Println(len(visited))
+
 		if _, ok := visited[i]; ok {
 			fmt.Println("Something went wrong", i)
 			break
 		}
 		visited[i] = true
 
-		op := operations[i]
-
 		switch op.command {
 		case ACC:
+			// fmt.Println(i+1, ": ACC", op)
 			count += op.num
 			i++
 		case JMP:
 			if ok, count := terminates(i+1, &operations, visited, count); ok {
-				fmt.Println("Changed operation at line: ", i, count)
+				fmt.Println(i+1, ": NOP, ", count, op)
 				return
 			}
-			fmt.Println("No change at line: ", i, count)
+			// fmt.Println(i+1, ": JMP", op)
 
 			i += op.num
 		case NOP:
 			if ok, count := terminates(i+op.num, &operations, visited, count); ok {
-				fmt.Println("Changed operation at line: ", i, count)
+				fmt.Println(i+1, ": JMP, ", count, op)
 				return
 			}
-			fmt.Println("No change at line: ", i, count)
+			// fmt.Println(i+1, ": JMP", op)
+
 			i++
 		default:
 			fmt.Println("Command not recognized")
@@ -92,7 +95,11 @@ func main() {
 	fmt.Println(count)
 }
 
-func terminates(i int, operations *[]Op, visited map[int]bool, count int) (bool, int) {
+func terminates(i int, operations *[]Op, prevVisited map[int]bool, count int) (bool, int) {
+	visited := make(map[int]bool)
+	for k, v := range prevVisited {
+		visited[k] = v
+	}
 	for {
 		if i == len(*operations) {
 			return true, count
