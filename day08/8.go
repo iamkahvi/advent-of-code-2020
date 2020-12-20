@@ -47,17 +47,8 @@ func main() {
 	visited := make(map[int]bool)
 	i, count := 0, 0
 
-	// The program is supposed to terminate by attempting to execute an instruction
-	// immediately after the last instruction in the file
-	// i == len(operations)
-
 	for {
-		if i == len(operations) {
-			break
-		}
-
 		op := operations[i]
-		// fmt.Println(len(visited))
 
 		if _, ok := visited[i]; ok {
 			fmt.Println("Something went wrong", i)
@@ -67,7 +58,6 @@ func main() {
 
 		switch op.command {
 		case ACC:
-			// fmt.Println(i+1, ": ACC", op)
 			count += op.num
 			i++
 		case JMP:
@@ -75,7 +65,6 @@ func main() {
 				fmt.Println(i+1, ": NOP, ", count, op)
 				return
 			}
-			// fmt.Println(i+1, ": JMP", op)
 
 			i += op.num
 		case NOP:
@@ -83,7 +72,6 @@ func main() {
 				fmt.Println(i+1, ": JMP, ", count, op)
 				return
 			}
-			// fmt.Println(i+1, ": JMP", op)
 
 			i++
 		default:
@@ -91,8 +79,6 @@ func main() {
 			return
 		}
 	}
-
-	fmt.Println(count)
 }
 
 func terminates(i int, operations *[]Op, prevVisited map[int]bool, count int) (bool, int) {
