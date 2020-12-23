@@ -29,6 +29,9 @@ function main() {
 
   let gapCounts: { [key: number]: number } = { 0: 0, 1: 0, 2: 0, 3: 0 };
 
+  let start = 0;
+  let count = 1;
+
   for (let i = 0; i < numbers.length; i++) {
     const prev = i > 0 ? numbers[i - 1] : 0;
     const curr = numbers[i];
@@ -36,13 +39,19 @@ function main() {
     if (curr - prev > MAX_GAP) {
       break;
     }
-    if (curr - prev <= MAX_GAP) {
-      gapCounts[curr - prev] += 1;
+
+    gapCounts[curr - prev] += 1;
+
+    if (curr - prev === MAX_GAP) {
+      if (i - start >= MAX_GAP) {
+        count *= findPathsRecursive(0, numbers.slice(start, i));
+      }
+      start = i;
     }
   }
 
   console.log(gapCounts[1] * gapCounts[3]);
-  console.log(findPathsRecursive(0, numbers));
+  console.log(count);
 }
 
 function findPathsRecursive(ind: number, arr: number[]): number {
